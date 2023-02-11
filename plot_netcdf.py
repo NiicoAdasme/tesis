@@ -18,7 +18,7 @@ from mpl_toolkits.basemap import Basemap
 #data = Dataset(r'C:\Users\Nico\Desktop\UBB\2022-2\Proyecto de título\ArchivosNetCDF\CR2\CR2MET_tmin_v2.0_mon_1979_2018_005deg.nc')
 
 # temperaturas minimas por mes 1979 - 2019 338MB
-data = Dataset(r'C:\Users\Nico\Desktop\UBB\2022-2\Proyecto de título\ArchivosNetCDF\CR2\CR2MET_tmin_v2.0_mon_1979_2019_005deg.nc')
+data = Dataset(r'C:\Users\Nico\Desktop\UBB\2022-2\Proyecto de título\ArchivosNetCDF\CR2\1979-2019\CR2MET_tmin_v2.0_mon_1979_2019_005deg.nc')
 
 # temperaturas maximas por dia 1979 - 2018 5GB
 #data = Dataset(r'C:\Users\Nico\Desktop\UBB\2022-2\Proyecto de título\ArchivosNetCDF\CR2\CR2MET_tmin_v2.0_mon_1979_2019_005deg.nc')
@@ -53,6 +53,7 @@ plt.rcParams["figure.figsize"] = (12, 12)
 lon, lat = np.meshgrid(lons, lats)
 x, y = mp(lon, lat)
 
+# !                                       TIME
 c_scheme = mp.pcolor(x, y, np.squeeze(tmin[0, :, :]), cmap= 'jet')
 mp.drawstates()
 mp.drawcountries()

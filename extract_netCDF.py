@@ -9,7 +9,7 @@ from netCDF4 import Dataset
 import numpy as np
 import pandas as pd
 
-data = Dataset(r'C:\Users\Nico\Desktop\UBB\2022-2\Proyecto de título\ArchivosNetCDF\CR2\CR2MET_tmax_v2.0_mon_1979_2019_005deg.nc')
+data = Dataset(r'C:\Users\Nico\Desktop\UBB\2022-2\Proyecto de título\ArchivosNetCDF\CR2\1979-2019\CR2MET_tmax_v2.0_mon_1979_2019_005deg.nc')
 
 lat = data.variables['lat'][:]
 lon = data.variables['lon'][:]

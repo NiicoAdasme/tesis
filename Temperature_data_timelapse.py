@@ -18,7 +18,7 @@ from mpl_toolkits.basemap import Basemap
 #data = Dataset(r'C:\Users\Nico\Desktop\UBB\2022-2\Proyecto de título\ArchivosNetCDF\CR2\CR2MET_tmin_v2.0_mon_1979_2018_005deg.nc')
 
 # temperaturas minimas por mes 1979 - 2019 338MB
-data = Dataset(r'C:\Users\Nico\Desktop\UBB\2022-2\Proyecto de título\ArchivosNetCDF\CR2\CR2MET_tmin_v2.0_mon_1979_2019_005deg.nc')
+data = Dataset(r'C:\Users\Nico\Desktop\UBB\2022-2\Proyecto de título\ArchivosNetCDF\CR2\1979-2019\CR2MET_tmin_v2.0_mon_1979_2019_005deg.nc')
 
 # temperaturas maximas por dia 1979 - 2018 5GB
 #data = Dataset(r'C:\Users\Nico\Desktop\UBB\2022-2\Proyecto de título\ArchivosNetCDF\CR2\CR2MET_tmin_v2.0_mon_1979_2019_005deg.nc')
@@ -70,7 +70,7 @@ for i in months:
     
     plt.title('Temperatura minima del mes ' + str(month) + ' desde 1979 hasta 2019')
     plt.clim(-40, 40)
-    plt.savefig(r'C:\Users\Nico\Desktop\UBB\2022-2\Proyecto de título\Python\images'+'\\'+ str(month)+'.jpg')
+    plt.savefig(r'C:\Users\Nico\Desktop\UBB\2022-2\Tesis\images_gif'+'\\'+ str(month)+'.jpg')
     plt.clf()
 
     

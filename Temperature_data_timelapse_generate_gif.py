@@ -13,7 +13,7 @@ image_frames = []
 months = np.arange(1, 491)
 
 for i in months:
-    new_frame = PIL.Image.open(r'C:\Users\Nico\Desktop\UBB\2022-2\Proyecto de título\Python\images'+'\\'+ str(i)+'.jpg')
+    new_frame = PIL.Image.open(r'C:\Users\Nico\Desktop\UBB\2022-2\Tesis\images_gif'+'\\'+ str(i)+'.jpg')
     image_frames.append(new_frame)
     
 image_frames[0].save('temprature_timelapse.gif', format= 'GIF',
