@@ -54,13 +54,13 @@ dlon = np.arange(0, data.variables['lon'].size)
 
 
 for i in dlat:
-    if i == min_index_lat:
-        break
+    #if i == min_index_lat:
+     #   break
     
     for j in dlon:
-        if j == min_index_lon:
-           break
-        else:
+      #  if j == min_index_lon:
+       #    break
+        #else:
             print('i: '+ str(i))
             print('j: '+ str(j))
             print('cont: '+ str(cont))
@@ -71,6 +71,7 @@ for i in dlat:
             tprom = (tempmin + tempmax) / 2
             indice_hidrico = ih.diciembre(tprom, prec)
             df = df.append({'lat': lat[i],  'lon': lon[j], 'tmin': tempmin, 'tmax': tempmax, 'pr': prec, 'tprom': tprom, 'ih': indice_hidrico}, ignore_index=True)
+            #df = df.append({'lat': lat[i],  'lon': lon[j], 'ih': indice_hidrico}, ignore_index=True)
             #df['lat'] = lat[i]
             #df['lon'] = lon[j]
             #df['tmin'] = tempmin
@@ -80,11 +81,11 @@ for i in dlat:
             #df['ih'] = indice_hidrico
             
 
-df.to_csv('test.csv')
+df.to_csv('lat_lon_ih.csv')
 
-df = pd.read_csv('test.csv')
+df = pd.read_csv('lat_lon_ih.csv')
 
-# remplazamos por NaN aquellos valores que no tienen informacion
+# we replace -- for NaN value
 df['tmin'] = df['tmin'].replace('--', np.NaN)
 df['tmax'] = df['tmax'].replace('--', np.NaN)
 df['pr'] = df['pr'].replace('--', np.NaN)        
@@ -92,7 +93,7 @@ df['pr'] = df['pr'].replace('--', np.NaN)
 # Eliminamos aquellos registros que no contengan informacion
 df.dropna(inplace=True)
 
-res = df.to_csv('test.csv')
+res = df.to_csv('lat_lon_ih.csv')
 # if res is 'None' (string) value, then the load to csv is succesfully, else it's wrong
 # return res 
 
