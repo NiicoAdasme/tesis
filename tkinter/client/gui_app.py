@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog
 from client.plot_netcdf import plot
+from client.to_csv import export_csv
 from PIL import Image, ImageTk
 from tkcalendar import DateEntry
 import datetime
@@ -108,43 +109,54 @@ class Frame(tk.Frame):
     def show_map_tmin(self):
         if len(self.entry_tmin.get()) > 0:
             # Create a modal to show the message
-            self.modal_calendar(tipo= 'tmin')
+            self.modal_calendar(tipo= 'tmin', action= 'plot')
         else:
             tk.messagebox.showerror('Ups! Se te ha olvidado el archivo', 'Por favor, ingrese archivo NetCDF para temperatura minima')
 
     def show_map_tmax(self):
         if len(self.entry_tmax.get()) > 0:
             # Create a modal to show the message
-            self.modal_calendar(tipo= 'tmax')
+            self.modal_calendar(tipo= 'tmax', action= 'plot')
         else:
             tk.messagebox.showerror('Ups! Se te ha olvidado el archivo', 'Por favor, ingrese archivo NetCDF para temperatura maxima')
     
     def show_map_pr(self):
         if len(self.entry_pr.get()) > 0:
             # Create a modal to show the message
-            self.modal_calendar(tipo= 'pr')
+            self.modal_calendar(tipo= 'pr', action= 'plot')
         else:
             tk.messagebox.showerror('Ups! Se te ha olvidado el archivo', 'Por favor, ingrese archivo NetCDF para precipitaciones')
     
     #  Function export to CSV
     def export_tmin(self):
-        path_netcdf= self.entry_tmin.get()
-        print(path_netcdf)
+        if len(self.entry_tmin.get()) > 0:
+            # Create a modal to show the message
+            self.modal_calendar(tipo= 'tmin', action= 'csv')
+        else:
+            tk.messagebox.showerror('Ups! Se te ha olvidado el archivo', 'Por favor, ingrese archivo NetCDF para temperatura minima')
 
     def export_tmax(self):
-        path_netcdf= self.entry_tmax.get()
-        print(path_netcdf)
+        if len(self.entry_tmax.get()) > 0:
+            # Create a modal to show the message
+            self.modal_calendar(tipo= 'tmax', action= 'csv')
+        else:
+            tk.messagebox.showerror('Ups! Se te ha olvidado el archivo', 'Por favor, ingrese archivo NetCDF para temperatura maxima')
+
 
     def export_pr(self):
-        path_netcdf= self.entry_pr.get()
-        print(path_netcdf)
+        if len(self.entry_pr.get()) > 0:
+            # Create a modal to show the message
+            self.modal_calendar(tipo= 'pr', action= 'csv')
+        else:
+            tk.messagebox.showerror('Ups! Se te ha olvidado el archivo', 'Por favor, ingrese archivo NetCDF para precipitaciones')
 
-    def modal_calendar(self, tipo= ['tmin', 'tmax', 'pr']):
+
+    def modal_calendar(self, tipo= ['tmin', 'tmax', 'pr'], action= ['plot', 'csv']):
         top = tk.Toplevel()
         top.title('Seleccione una fecha')
-        top.geometry("500x80")
+        top.geometry("680x80")
 
-        lbl = tk.Label(top, text= 'Seleccione una fecha entre 1978-12-15 y 2019-01-01')
+        lbl = tk.Label(top, text= 'Seleccione una fecha entre 1978-12-15 y 2019-01-01 (Formato: YYYY-MM-DD)')
         lbl.grid(row= 0, column= 0, padx= 10, pady= 10)
         cal = DateEntry(top, selectmode= 'day', date_pattern= 'YYYY-mm-dd')
         cal.grid(row= 0, column= 1, padx= 10, pady= 10)
@@ -158,22 +170,30 @@ class Frame(tk.Frame):
         if tipo == 'pr':
             title= 'Mapa de precipitaciones de '
 
-        self.button_date = tk.Button(top, text= 'Ver Mapa', command= lambda: self.validate_date(fecha= cal.get_date(), 
-                                                                                                titulo= title, tipo= tipo))
+        if action == 'plot':
+            texto = 'Ver Mapa'
+        else:
+            texto = 'Exportar a CSV'
+
+        self.button_date = tk.Button(top, text= texto, command= lambda: self.validate_date(fecha= cal.get_date(), 
+                                                                                                titulo= title, tipo= tipo, action= action))
         self.button_date.grid(row= 0, column= 2, padx= 10, pady= 10)
 
         top.mainloop()
     
     # validar fecha dentro del rango valido
-    def validate_date(self, fecha, titulo, tipo = ['tmin', 'tmax', 'pr']):
+    def validate_date(self, fecha, titulo, tipo = ['tmin', 'tmax', 'pr'], action= ['plot', 'csv']):
         start_date = datetime.date(1978, 12, 15)
         ending_date = datetime.date(2019, 10, 30)
         if fecha < start_date or fecha > ending_date:
             return tk.messagebox.showerror('Ups! Fecha fuera de rango', 
                                             'Por favor, ingrese una fecha entre 1978-12-15 y 2019-10-30')
         else:
-            return self.modal_map(titulo= titulo, fecha= fecha, tipo= tipo)
-    
+            if action == 'plot':
+                self.modal_map(titulo= titulo, fecha= fecha, tipo= tipo)
+            else:
+                self.export_to_csv(fecha= fecha, tipo= tipo)
+
     # Desplegar imagen
     def modal_map(self, titulo, fecha, tipo= ['tmin', 'tmax', 'pr']):
         if tipo == 'tmin':
@@ -198,3 +218,19 @@ class Frame(tk.Frame):
     def generate_gif_tmin(self):
         pass
 
+    def export_to_csv(self, fecha, tipo= ['tmin', 'tmax', 'pr']):
+        if tipo == 'tmin':
+            path_netcdf= self.entry_tmin.get()
+        
+        if tipo == 'tmax':
+            path_netcdf= self.entry_tmax.get()
+
+        if tipo == 'pr':
+            path_netcdf= self.entry_pr.get()
+
+        res = export_csv(path_netcdf, fecha, tipo)
+
+        if res == None:
+            tk.messagebox.showinfo('Exportado a CSV', 'Archivo CSV guardado correctamente en la carpera CSV')
+        else:
+            tk.messagebox.showerror('Ups! Error al exportar', 'Lo sentimos. No se pudo exportar a CSV')

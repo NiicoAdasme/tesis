@@ -54,24 +54,24 @@ dlon = np.arange(0, data.variables['lon'].size)
 
 
 for i in dlat:
-    #if i == min_index_lat:
-     #   break
+    if i == min_index_lat:
+        break
     
     for j in dlon:
-      #  if j == min_index_lon:
-       #    break
-        #else:
+        if j == min_index_lon:
+            break
+        else:
             print('i: '+ str(i))
             print('j: '+ str(j))
             print('cont: '+ str(cont))
             tempmin = tmin[pos_date, i, j]
-            tempmax = tmax[pos_date, i, j]
-            prec = pr[pos_date, i, j]
+            #tempmax = tmax[pos_date, i, j]
+            #prec = pr[pos_date, i, j]
             cont = cont + 1
-            tprom = (tempmin + tempmax) / 2
-            indice_hidrico = ih.diciembre(tprom, prec)
-            df = df.append({'lat': lat[i],  'lon': lon[j], 'tmin': tempmin, 'tmax': tempmax, 'pr': prec, 'tprom': tprom, 'ih': indice_hidrico}, ignore_index=True)
-            #df = df.append({'lat': lat[i],  'lon': lon[j], 'ih': indice_hidrico}, ignore_index=True)
+            #tprom = (tempmin + tempmax) / 2
+            #indice_hidrico = ih.diciembre(tprom, prec)
+            #df = df.append({'lat': lat[i],  'lon': lon[j], 'tmin': tempmin, 'tmax': tempmax, 'pr': prec, 'tprom': tprom, 'ih': indice_hidrico}, ignore_index=True)
+            df = df.append({'tmin': tempmin}, ignore_index=True)
             #df['lat'] = lat[i]
             #df['lon'] = lon[j]
             #df['tmin'] = tempmin
@@ -81,19 +81,19 @@ for i in dlat:
             #df['ih'] = indice_hidrico
             
 
-df.to_csv('lat_lon_ih.csv')
+df.to_csv('lat.csv')
 
-df = pd.read_csv('lat_lon_ih.csv')
+df = pd.read_csv('lat.csv', index_col=0)
 
 # we replace -- for NaN value
 df['tmin'] = df['tmin'].replace('--', np.NaN)
-df['tmax'] = df['tmax'].replace('--', np.NaN)
-df['pr'] = df['pr'].replace('--', np.NaN)        
+#df['tmax'] = df['tmax'].replace('--', np.NaN)
+#df['pr'] = df['pr'].replace('--', np.NaN)        
 
 # Eliminamos aquellos registros que no contengan informacion
 df.dropna(inplace=True)
 
-res = df.to_csv('lat_lon_ih.csv')
+res = df.to_csv('lat.csv')
 # if res is 'None' (string) value, then the load to csv is succesfully, else it's wrong
 # return res 
 

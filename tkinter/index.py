@@ -4,7 +4,7 @@ from client.gui_app import Frame, barra_menu
 def main():
     root = tk.Tk()
     root.title('Calculo de indice hidrico')
-    #root.iconbitmap('img/logo.ico')
+    #root.iconbitmap('img/logoubb.ico')
     root.resizable(0,0)
     
     barra_menu(root)
