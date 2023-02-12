@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import filedialog
 from client.plot_netcdf import plot
 from client.to_csv import export_csv
+from client.generate_timelapse import gen_timelapse
 from PIL import Image, ImageTk
 from tkcalendar import DateEntry
 import datetime
@@ -77,13 +78,13 @@ class Frame(tk.Frame):
         self.button_export_pr.grid(row= 2, column= 3, padx= 10, pady= 10)
 
         # Button to generate GIF
-        self.button_gif_tmin = tk.Button(self, text= 'Generar GIF', command= self.generate_gif_tmin)
+        self.button_gif_tmin = tk.Button(self, text= 'Generar GIF', command= lambda: self.generate_gif(tipo= 'tmin') )
         self.button_gif_tmin.grid(row= 0, column= 4, padx= 10, pady= 10)
 
-        self.button_gif_tmax = tk.Button(self, text= 'Generar GIF', command= self.generate_gif_tmin)
+        self.button_gif_tmax = tk.Button(self, text= 'Generar GIF', command= lambda: self.generate_gif(tipo= 'tmax'))
         self.button_gif_tmax.grid(row= 1, column= 4, padx= 10, pady= 10)
 
-        self.button_gif_pr = tk.Button(self, text= 'Generar GIF', command= self.generate_gif_tmin)
+        self.button_gif_pr = tk.Button(self, text= 'Generar GIF', command= lambda: self.generate_gif(tipo= 'pr'))
         self.button_gif_pr.grid(row= 2, column= 4, padx= 10, pady= 10)
 
     # Functions open file
@@ -142,7 +143,6 @@ class Frame(tk.Frame):
         else:
             tk.messagebox.showerror('Ups! Se te ha olvidado el archivo', 'Por favor, ingrese archivo NetCDF para temperatura maxima')
 
-
     def export_pr(self):
         if len(self.entry_pr.get()) > 0:
             # Create a modal to show the message
@@ -176,7 +176,7 @@ class Frame(tk.Frame):
             texto = 'Exportar a CSV'
 
         self.button_date = tk.Button(top, text= texto, command= lambda: self.validate_date(fecha= cal.get_date(), 
-                                                                                                titulo= title, tipo= tipo, action= action))
+                                                                                    titulo= title, tipo= tipo, action= action))
         self.button_date.grid(row= 0, column= 2, padx= 10, pady= 10)
 
         top.mainloop()
@@ -215,8 +215,26 @@ class Frame(tk.Frame):
         tk.messagebox.showinfo('Imagen Guardada', 'La imagen se guardó correctamente en '+ str(res))
         top.mainloop()
 
-    def generate_gif_tmin(self):
-        pass
+    def generate_gif(self, tipo= ['tmin', 'tmax', 'pr']):
+        if tipo == 'tmin':
+            path_netcdf= self.entry_tmin.get()
+        
+        if tipo == 'tmax':
+            path_netcdf= self.entry_tmax.get()
+
+        if tipo == 'pr':
+            path_netcdf= self.entry_pr.get()
+        
+        res = gen_timelapse(ruta= path_netcdf, tipo= tipo)
+        
+        print('respuesta del timelapse: '+ res)
+
+        if len(res) > 0:
+            tk.messagebox.showinfo('GIF Guardado', 'El GIF se guardó correctamente en '+ res)
+        else:
+            tk.messagebox.showerror('Ups! Error al generar GIF', 'Lo sentimos. Hubo un error al generar el GIF')
+
+
 
     def export_to_csv(self, fecha, tipo= ['tmin', 'tmax', 'pr']):
         if tipo == 'tmin':
@@ -234,3 +252,5 @@ class Frame(tk.Frame):
             tk.messagebox.showinfo('Exportado a CSV', 'Archivo CSV guardado correctamente en la carpera CSV')
         else:
             tk.messagebox.showerror('Ups! Error al exportar', 'Lo sentimos. No se pudo exportar a CSV')
+
+    

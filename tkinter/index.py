@@ -1,7 +1,14 @@
 import tkinter as tk
+import os
 from client.gui_app import Frame, barra_menu
 
 def main():
+    if os.path.isdir('img') or os.path.isdir('csv'):
+        pass
+    else:
+        os.makedirs('img/timelapse')
+        os.mkdir('csv')
+    
     root = tk.Tk()
     root.title('Calculo de indice hidrico')
     #root.iconbitmap('img/logoubb.ico')
