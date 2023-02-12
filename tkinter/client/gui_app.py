@@ -34,47 +34,47 @@ class Frame(tk.Frame):
 
     def campos_netcdf(self):
         # Button open File
-        self.button_tmin = tk.Button(self, text= 'Seleccione NetCDF para Temperatura Minima', command= self.open_tmin)
+        self.button_tmin = tk.Button(self, text= 'Seleccione NetCDF para Temperatura Minima', command= lambda:self.open_file(tipo= 'tmin'))
         self.button_tmin.grid(row= 0, column= 0, padx= 10, pady= 10)
 
-        self.button_tmax = tk.Button(self, text= 'Seleccione NetCDF para Temperatura Maxima', command= self.open_tmax)
+        self.button_tmax = tk.Button(self, text= 'Seleccione NetCDF para Temperatura Maxima', command= lambda:self.open_file(tipo= 'tmax'))
         self.button_tmax.grid(row= 1, column= 0, padx= 10, pady= 10)
 
-        self.button_pr = tk.Button(self, text= 'Seleccione NetCDF para Precipitaciones', command= self.open_pr)
+        self.button_pr = tk.Button(self, text= 'Seleccione NetCDF para Precipitaciones', command= lambda:self.open_file(tipo= 'pr'))
         self.button_pr.grid(row= 2, column= 0, padx= 10, pady= 10)
 
         # Entry's
         self.entry_tmin = tk.Entry(self)
-        self.entry_tmin.config(width= 50, state='normal', font= ('Arial', 12))
+        self.entry_tmin.config(width= 50, state='readonly', font= ('Arial', 12))
         self.entry_tmin.grid(row=0, column= 1, padx= 10, pady= 10)
 
         self.entry_tmax = tk.Entry(self)
-        self.entry_tmax.config(width= 50, state='normal', font= ('Arial', 12))
+        self.entry_tmax.config(width= 50, state='readonly', font= ('Arial', 12))
         self.entry_tmax.grid(row=1, column= 1, padx= 10, pady= 10)
 
         self.entry_pr = tk.Entry(self)
-        self.entry_pr.config(width= 50, state='normal', font= ('Arial', 12))
+        self.entry_pr.config(width= 50, state='readonly', font= ('Arial', 12))
         self.entry_pr.grid(row=2, column= 1, padx= 10, pady= 10)
 
         # Button show Map
-        self.button_show_tmin = tk.Button(self, text= 'Ver Mapa', command= self.show_map_tmin)
+        self.button_show_tmin = tk.Button(self, text= 'Ver Mapa', command= lambda:self.show_map(tipo= 'tmin'))
         self.button_show_tmin.grid(row= 0, column= 2, padx= 10, pady= 10)
         
-        self.button_show_tmax = tk.Button(self, text= 'Ver Mapa', command= self.show_map_tmax)
+        self.button_show_tmax = tk.Button(self, text= 'Ver Mapa', command= lambda:self.show_map(tipo= 'tmax'))
         self.button_show_tmax.grid(row= 1, column= 2, padx= 10, pady= 10)
         
-        self.button_show_pr = tk.Button(self, text= 'Ver Mapa', command= self.show_map_pr)
+        self.button_show_pr = tk.Button(self, text= 'Ver Mapa', command= lambda:self.show_map(tipo= 'pr'))
         self.button_show_pr.grid(row= 2, column= 2, padx= 10, pady= 10)
 
 
         # Button export to CSV
-        self.button_export_tmin = tk.Button(self, text= 'Exportar a CSV', command= self.export_tmin)
+        self.button_export_tmin = tk.Button(self, text= 'Exportar a CSV', command= lambda:self.export(tipo= 'tmin'))
         self.button_export_tmin.grid(row= 0, column= 3, padx= 10, pady= 10)
         
-        self.button_export_tmax = tk.Button(self, text= 'Exportar a CSV', command= self.export_tmax)
+        self.button_export_tmax = tk.Button(self, text= 'Exportar a CSV', command= lambda:self.export(tipo= 'tmax'))
         self.button_export_tmax.grid(row= 1, column= 3, padx= 10, pady= 10)
         
-        self.button_export_pr = tk.Button(self, text= 'Exportar a CSV', command= self.export_pr)
+        self.button_export_pr = tk.Button(self, text= 'Exportar a CSV', command= lambda:self.export(tipo= 'pr'))
         self.button_export_pr.grid(row= 2, column= 3, padx= 10, pady= 10)
 
         # Button to generate GIF
@@ -88,67 +88,69 @@ class Frame(tk.Frame):
         self.button_gif_pr.grid(row= 2, column= 4, padx= 10, pady= 10)
 
     # Functions open file
-    def open_tmin(self):
-        file = tk.filedialog.askopenfilename(title= 'Abrir NetCDF para temperatura minima', initialdir= 'C:/', filetypes= (("Archivos NetCDF","*.nc"), ("Cualquier Archivo", "*.*")))
-        self.entry_tmin.delete(0, tk.END)
-        self.entry_tmin.insert(0, file)
-        self.entry_tmin.config(state= 'normal')
+    def open_file(self, tipo= ['tmin', 'tmax', 'pr']):
+        if tipo == 'tmin':
+            path_netcdf = self.entry_tmin
+            title = 'Abrir NetCDF para temperatura minima'
+        
+        if tipo == 'tmax':
+            path_netcdf = self.entry_tmax
+            title = 'Abrir NetCDF para temperatura maxima'
+        
+        if tipo == 'pr':
+            path_netcdf = self.entry_pr
+            title = 'Abrir NetCDF para precipitaciones'
 
-    def open_tmax(self):
-        file = tk.filedialog.askopenfilename(title= 'Abrir NetCDF para temperatura maxima', initialdir= 'C:/', filetypes= (("Archivos NetCDF","*.nc"), ("Cualquier Archivo", "*.*")))
-        self.entry_tmax.delete(0, tk.END)
-        self.entry_tmax.insert(0, file)
-        self.entry_tmax.config(state= 'normal')
+        file = tk.filedialog.askopenfilename(title= title, initialdir= 'C:/', filetypes= (("Archivos NetCDF","*.nc"), ("Cualquier Archivo", "*.*")))
+        
+        # validate the correct file
+        if tipo in file:
+            path_netcdf.config(state= 'normal')
+            path_netcdf.delete(0, tk.END)
+            path_netcdf.insert(0, file)
+        else:
+            tk.messagebox.showerror('Up! Archivo incorrecto', 'Por favor. Seleccione el archivo correspondiente')
 
-    def open_pr(self):
-        file = tk.filedialog.askopenfilename(title= 'Abrir NetCDF para precipitaciones', initialdir= 'C:/', filetypes= (("Archivos NetCDF","*.nc"), ("Cualquier Archivo", "*.*")))
-        self.entry_pr.delete(0, tk.END)
-        self.entry_pr.insert(0, file)
-        self.entry_pr.config(state= 'normal')
 
     # Functions show map
-    def show_map_tmin(self):
-        if len(self.entry_tmin.get()) > 0:
-            # Create a modal to show the message
-            self.modal_calendar(tipo= 'tmin', action= 'plot')
-        else:
-            tk.messagebox.showerror('Ups! Se te ha olvidado el archivo', 'Por favor, ingrese archivo NetCDF para temperatura minima')
+    def show_map(self, tipo= ['tmin', 'tmax', 'pr']):
+        if tipo == 'tmin':
+            path_netcdf = self.entry_tmin.get()
+            msg = 'Por favor, ingrese archivo NetCDF para temperatura minima'
+        
+        if tipo == 'tmax':
+            path_netcdf = self.entry_tmax.get()
+            msg = 'Por favor, ingrese archivo NetCDF para temperatura maxima'
+        
+        if tipo == 'pr':
+            path_netcdf = self.entry_pr.get()
+            msg = 'Por favor, ingrese archivo NetCDF para precipitaciones'
 
-    def show_map_tmax(self):
-        if len(self.entry_tmax.get()) > 0:
+        if len(path_netcdf) > 0:
             # Create a modal to show the message
-            self.modal_calendar(tipo= 'tmax', action= 'plot')
+            self.modal_calendar(tipo= tipo, action= 'plot')
         else:
-            tk.messagebox.showerror('Ups! Se te ha olvidado el archivo', 'Por favor, ingrese archivo NetCDF para temperatura maxima')
-    
-    def show_map_pr(self):
-        if len(self.entry_pr.get()) > 0:
-            # Create a modal to show the message
-            self.modal_calendar(tipo= 'pr', action= 'plot')
-        else:
-            tk.messagebox.showerror('Ups! Se te ha olvidado el archivo', 'Por favor, ingrese archivo NetCDF para precipitaciones')
-    
+            tk.messagebox.showerror('Ups! Se te ha olvidado el archivo', msg)
+
     #  Function export to CSV
-    def export_tmin(self):
-        if len(self.entry_tmin.get()) > 0:
-            # Create a modal to show the message
-            self.modal_calendar(tipo= 'tmin', action= 'csv')
+    def export(self, tipo= ['tmin', 'tmax', 'pr']):
+        if tipo == 'tmin':
+            path_netcdf = self.entry_tmin.get()
+            msg = 'Por favor, ingrese archivo NetCDF para temperatura minima'
+        
+        if tipo == 'tmax':
+            path_netcdf = self.entry_tmax.get()
+            msg = 'Por favor, ingrese archivo NetCDF para temperatura maxima'
+        
+        if tipo == 'pr':
+            path_netcdf = self.entry_pr.get()
+            msg = 'Por favor, ingrese archivo NetCDF para precipitaciones'
+            
+        
+        if len(path_netcdf) > 0:
+            self.modal_calendar(tipo= tipo, action= 'csv')
         else:
-            tk.messagebox.showerror('Ups! Se te ha olvidado el archivo', 'Por favor, ingrese archivo NetCDF para temperatura minima')
-
-    def export_tmax(self):
-        if len(self.entry_tmax.get()) > 0:
-            # Create a modal to show the message
-            self.modal_calendar(tipo= 'tmax', action= 'csv')
-        else:
-            tk.messagebox.showerror('Ups! Se te ha olvidado el archivo', 'Por favor, ingrese archivo NetCDF para temperatura maxima')
-
-    def export_pr(self):
-        if len(self.entry_pr.get()) > 0:
-            # Create a modal to show the message
-            self.modal_calendar(tipo= 'pr', action= 'csv')
-        else:
-            tk.messagebox.showerror('Ups! Se te ha olvidado el archivo', 'Por favor, ingrese archivo NetCDF para precipitaciones')
+            tk.messagebox.showerror('Ups! Se te ha olvidad el archivo', msg)
 
 
     def modal_calendar(self, tipo= ['tmin', 'tmax', 'pr'], action= ['plot', 'csv']):
@@ -181,7 +183,7 @@ class Frame(tk.Frame):
 
         top.mainloop()
     
-    # validar fecha dentro del rango valido
+    # validate date in a valid range
     def validate_date(self, fecha, titulo, tipo = ['tmin', 'tmax', 'pr'], action= ['plot', 'csv']):
         start_date = datetime.date(1978, 12, 15)
         ending_date = datetime.date(2019, 10, 30)
@@ -194,7 +196,7 @@ class Frame(tk.Frame):
             else:
                 self.export_to_csv(fecha= fecha, tipo= tipo)
 
-    # Desplegar imagen
+    # show image
     def modal_map(self, titulo, fecha, tipo= ['tmin', 'tmax', 'pr']):
         if tipo == 'tmin':
             path_netcdf= self.entry_tmin.get()
@@ -215,6 +217,7 @@ class Frame(tk.Frame):
         tk.messagebox.showinfo('Imagen Guardada', 'La imagen se guardó correctamente en '+ str(res))
         top.mainloop()
 
+    # geenerate gif
     def generate_gif(self, tipo= ['tmin', 'tmax', 'pr']):
         if tipo == 'tmin':
             path_netcdf= self.entry_tmin.get()
@@ -235,7 +238,7 @@ class Frame(tk.Frame):
             tk.messagebox.showerror('Ups! Error al generar GIF', 'Lo sentimos. Hubo un error al generar el GIF')
 
 
-
+    # export to csv
     def export_to_csv(self, fecha, tipo= ['tmin', 'tmax', 'pr']):
         if tipo == 'tmin':
             path_netcdf= self.entry_tmin.get()
