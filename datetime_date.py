@@ -11,8 +11,8 @@ input_date = '1979-12-15'
 input_date = input_date.split('-')
 print(input_date)
 # YYY-MM-DD
-fecha1 = datetime.datetime(int(input_date[0]), int(input_date[1]), int(input_date[2]))
-fecha2 = datetime.datetime(2019, 1, 1)
+fecha1 = datetime.date(int(input_date[0]), int(input_date[1]), int(input_date[2]))
+fecha2 = datetime.date(2019, 1, 1)
 
 print(fecha1)
 print(fecha2)

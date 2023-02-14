@@ -3,6 +3,7 @@ from tkinter import filedialog
 from client.plot_netcdf import plot
 from client.to_csv import export_csv
 from client.generate_timelapse import gen_timelapse
+from client.ih_to_csv import ih_to_csv
 from PIL import Image, ImageTk
 from tkcalendar import DateEntry
 import datetime
@@ -87,8 +88,26 @@ class Frame(tk.Frame):
         self.button_gif_pr = tk.Button(self, text= 'Generar GIF', command= lambda: self.generate_gif(tipo= 'pr'))
         self.button_gif_pr.grid(row= 2, column= 4, padx= 10, pady= 10)
 
+        # Button to calculate the index risk of water
+        #if len(self.entry_tmin.get()) > 0 and len(self.entry_tmax.get()) > 0 and len(self.entry_pr.get()) > 0:
+        # Button to merge all netcdf
+        self.lbl_ih = tk.Label(self, text= 'Calcular indice de riesgo hidrico')
+        self.lbl_ih.grid(row= 3, column= 0, padx= 10, pady= 10)
+
+        # Button show Map
+        self.button_show_ih = tk.Button(self, text= 'Ver Mapa', command= lambda:self.show_map(tipo= 'ih'))
+        self.button_show_ih.grid(row= 3, column= 1, padx= 10, pady= 10)
+
+        # Button export to CSV
+        self.button_export_ih = tk.Button(self, text= 'Exportar a CSV', command= lambda:self.export(tipo= 'ih'))
+        self.button_export_ih.grid(row= 3, column= 2, padx= 10, pady= 10)
+
+        # Button to generate GIF
+        self.button_gif_ih = tk.Button(self, text= 'Generar GIF', command= lambda: self.generate_gif(tipo= 'ih') )
+        self.button_gif_ih.grid(row= 3, column= 3, padx= 10, pady= 10)
+
     # Functions open file
-    def open_file(self, tipo= ['tmin', 'tmax', 'pr']):
+    def open_file(self, tipo= ['tmin', 'tmax', 'pr', 'ih']):
         if tipo == 'tmin':
             path_netcdf = self.entry_tmin
             title = 'Abrir NetCDF para temperatura minima'
@@ -100,6 +119,10 @@ class Frame(tk.Frame):
         if tipo == 'pr':
             path_netcdf = self.entry_pr
             title = 'Abrir NetCDF para precipitaciones'
+        
+        if tipo == 'ih':
+            path_netcdf = self.entry_ih
+            title = 'Abrir NetCDF para indice hidrico'
 
         file = tk.filedialog.askopenfilename(title= title, initialdir= 'C:/', filetypes= (("Archivos NetCDF","*.nc"), ("Cualquier Archivo", "*.*")))
         
@@ -113,7 +136,7 @@ class Frame(tk.Frame):
 
 
     # Functions show map
-    def show_map(self, tipo= ['tmin', 'tmax', 'pr']):
+    def show_map(self, tipo= ['tmin', 'tmax', 'pr', 'ih']):
         if tipo == 'tmin':
             path_netcdf = self.entry_tmin.get()
             msg = 'Por favor, ingrese archivo NetCDF para temperatura minima'
@@ -126,6 +149,18 @@ class Frame(tk.Frame):
             path_netcdf = self.entry_pr.get()
             msg = 'Por favor, ingrese archivo NetCDF para precipitaciones'
 
+        if tipo == 'ih':
+            ruta_tmin = self.entry_tmin.get()
+            ruta_tmax = self.entry_tmax.get()
+            ruta_pr = self.entry_pr.get()
+            msg = 'Son necesarios los archivos NetCDF de temperatura minima, maxima y de precipitaciones, para calcular el indice de riesgo hidrico'
+
+            if len(ruta_tmin) > 0 and len(ruta_tmax) > 0 and len(ruta_pr) > 0:            
+                self.modal_calendar(tipo= tipo, action= 'plot')
+            else:
+                tk.messagebox.showerror('Ups! Faltan archivos NetCDF', msg)
+
+        
         if len(path_netcdf) > 0:
             # Create a modal to show the message
             self.modal_calendar(tipo= tipo, action= 'plot')
@@ -133,7 +168,7 @@ class Frame(tk.Frame):
             tk.messagebox.showerror('Ups! Se te ha olvidado el archivo', msg)
 
     #  Function export to CSV
-    def export(self, tipo= ['tmin', 'tmax', 'pr']):
+    def export(self, tipo= ['tmin', 'tmax', 'pr', 'ih']):
         if tipo == 'tmin':
             path_netcdf = self.entry_tmin.get()
             msg = 'Por favor, ingrese archivo NetCDF para temperatura minima'
@@ -146,6 +181,16 @@ class Frame(tk.Frame):
             path_netcdf = self.entry_pr.get()
             msg = 'Por favor, ingrese archivo NetCDF para precipitaciones'
             
+        if tipo == 'ih':
+            ruta_tmin = self.entry_tmin.get()
+            ruta_tmax = self.entry_tmax.get()
+            ruta_pr = self.entry_pr.get()
+            msg = 'Son necesarios los archivos NetCDF de temperatura minima, maxima y de precipitaciones, para calcular el indice de riesgo hidrico'
+
+            if len(ruta_tmin) > 0 and len(ruta_tmax) > 0 and len(ruta_pr) > 0:            
+                self.modal_calendar(tipo= tipo, action= 'csv')
+            else:
+                tk.messagebox.showerror('Ups! Faltan archivos NetCDF', msg) 
         
         if len(path_netcdf) > 0:
             self.modal_calendar(tipo= tipo, action= 'csv')
@@ -153,7 +198,7 @@ class Frame(tk.Frame):
             tk.messagebox.showerror('Ups! Se te ha olvidad el archivo', msg)
 
 
-    def modal_calendar(self, tipo= ['tmin', 'tmax', 'pr'], action= ['plot', 'csv']):
+    def modal_calendar(self, tipo= ['tmin', 'tmax', 'pr', 'ih'], action= ['plot', 'csv']):
         top = tk.Toplevel()
         top.title('Seleccione una fecha')
         top.geometry("680x80")
@@ -172,6 +217,9 @@ class Frame(tk.Frame):
         if tipo == 'pr':
             title= 'Mapa de precipitaciones de '
 
+        if tipo == 'ih':
+            title= 'Mapa de indice de riesgo hidrico de '
+
         if action == 'plot':
             texto = 'Ver Mapa'
         else:
@@ -184,7 +232,7 @@ class Frame(tk.Frame):
         top.mainloop()
     
     # validate date in a valid range
-    def validate_date(self, fecha, titulo, tipo = ['tmin', 'tmax', 'pr'], action= ['plot', 'csv']):
+    def validate_date(self, fecha, titulo, tipo = ['tmin', 'tmax', 'pr', 'ih'], action= ['plot', 'csv']):
         start_date = datetime.date(1978, 12, 15)
         ending_date = datetime.date(2019, 10, 30)
         if fecha < start_date or fecha > ending_date:
@@ -197,7 +245,7 @@ class Frame(tk.Frame):
                 self.export_to_csv(fecha= fecha, tipo= tipo)
 
     # show image
-    def modal_map(self, titulo, fecha, tipo= ['tmin', 'tmax', 'pr']):
+    def modal_map(self, titulo, fecha, tipo= ['tmin', 'tmax', 'pr', 'ih']):
         if tipo == 'tmin':
             path_netcdf= self.entry_tmin.get()
         
@@ -206,6 +254,13 @@ class Frame(tk.Frame):
 
         if tipo == 'pr':
             path_netcdf= self.entry_pr.get()
+
+        if tipo == 'ih':
+            ruta_tmin = self.entry_tmin.get()
+            ruta_tmax = self.entry_tmax.get()
+            ruta_pr = self.entry_pr.get()
+
+            # plot map ih
 
         res = plot(ruta= path_netcdf, fecha= fecha, tipo= tipo)
         image = ImageTk.PhotoImage(Image.open(res))
@@ -239,7 +294,7 @@ class Frame(tk.Frame):
 
 
     # export to csv
-    def export_to_csv(self, fecha, tipo= ['tmin', 'tmax', 'pr']):
+    def export_to_csv(self, fecha, tipo= ['tmin', 'tmax', 'pr', 'ih']):
         if tipo == 'tmin':
             path_netcdf= self.entry_tmin.get()
         
@@ -249,11 +304,16 @@ class Frame(tk.Frame):
         if tipo == 'pr':
             path_netcdf= self.entry_pr.get()
 
-        res = export_csv(path_netcdf, fecha, tipo)
+        if tipo == 'ih':
+            ruta_tmin = self.entry_tmin.get()
+            ruta_tmax = self.entry_tmax.get()
+            ruta_pr = self.entry_pr.get()
+            res = ih_to_csv(ruta_tmin= ruta_tmin, ruta_tmax= ruta_tmax, ruta_pr= ruta_pr, fecha= fecha)
+        else:
+            res = export_csv(path_netcdf, fecha, tipo)
 
         if res == None:
             tk.messagebox.showinfo('Exportado a CSV', 'Archivo CSV guardado correctamente en la carpera CSV')
         else:
             tk.messagebox.showerror('Ups! Error al exportar', 'Lo sentimos. No se pudo exportar a CSV')
 
-    
