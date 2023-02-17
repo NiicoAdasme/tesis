@@ -14,7 +14,7 @@ import os
 
 def plot(ruta, fecha, tipo= ['tmin', 'tmax', 'pr']):
 
-    data = Dataset(ruta)
+    data = Dataset(r''+ruta, 'r')
 
     lats = data.variables['lat'][:]
     lons = data.variables['lon'][:]
@@ -39,7 +39,7 @@ def plot(ruta, fecha, tipo= ['tmin', 'tmax', 'pr']):
                 llcrnrlat = -56.08751754901597,
                 urcrnrlon = -65.43100574537897,
                 urcrnrlat = -14.858128494096263,
-                resolution = 'f')
+                resolution = 'l')
 
 
     plt.rcParams["figure.figsize"] = (12, 12)
