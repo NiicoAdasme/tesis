@@ -1,11 +1,13 @@
 
 /images_gif
-/img-gif
+/img
 /csv
 /Jupyter Notebook
 /tkinter/client/__pycache__
 /tkinter/img
 /tkinter/csv
+.ipynb_checkpoints
+/Shapefile
 comandos_para_merge_NetCDF.txt
 modulos_anaconda.txt
 __pycache__
