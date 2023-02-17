@@ -5,6 +5,7 @@ Spyder Editor
 This is a temporary script file.
 """
 
+import platform
 from osgeo import gdal
 import pandas as pd
 #import numpy as np
@@ -16,7 +17,10 @@ from shapely.geometry import Point
 
 gdal.SetConfigOption('SHAPE_RESTORE_SHX', 'YES')
 
-df = pd.read_csv('C:\\Users\\Nico\\Desktop\\Tesis-teton\\ihf.csv')
+if platform.platform() == 'Windows':
+    df = pd.read_csv('C:\\Users\\Nico\\Desktop\\Tesis-teton\\ihf.csv')
+else:
+    df = pd.read_csv('/home/debian/tesis/tkinter/csv/indice_riesgo_hidrico_1979-12-15.csv')
 
 df = df[['lat', 'lon', 'ih']]
 
