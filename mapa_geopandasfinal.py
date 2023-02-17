@@ -13,12 +13,12 @@ import pyproj
 import matplotlib.pyplot as plt
 from shapely.geometry import Point
 
-df = pd.read_csv('C:\\Users\\Nico\\Desktop\\Tesis-teton\\ihf.csv')
+df = pd.read_csv('/home/debian/tesis/tkinter/csv/indice_riesgo_hidrico_1979-12-15.csv')
 
 df = df[['lat', 'lon', 'ih']]
 
 
-kings_county_map = gpd.read_file('C:\\Users\\Nico\\Desktop\\Tesis-teton\\Regiones\\Regional.shp')
+kings_county_map = gpd.read_file('/home/debian/tesis/Shapefile/Regional.shp')
 kings_county_map.plot()
 kings_county_map.to_crs(epsg=4326).plot()
 
