@@ -14,7 +14,7 @@ import os
 
 def plot(ruta, fecha, tipo= ['tmin', 'tmax', 'pr']):
 
-    data = Dataset(r''+ruta, 'r')
+    data = Dataset(ruta)
 
     lats = data.variables['lat'][:]
     lons = data.variables['lon'][:]
