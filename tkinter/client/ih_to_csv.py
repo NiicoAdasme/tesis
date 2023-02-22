@@ -10,8 +10,10 @@ import numpy as np
 import pandas as pd
 import os
 import client.calc_ih as ih
+import warnings
 
 def ih_to_csv(ruta_tmin, ruta_tmax, ruta_pr, fecha):
+    warnings.filterwarnings("ignore")
 
     data_tmin = Dataset(ruta_tmin)
     data_tmax = Dataset(ruta_tmax)
@@ -69,9 +71,9 @@ def ih_to_csv(ruta_tmin, ruta_tmax, ruta_pr, fecha):
         #    if j == min_index_lon:
         #        break
         #    else:
-            print('i: '+ str(i))
-            print('j: '+ str(j))
-            print('cont: '+ str(cont))
+            #print('i: '+ str(i))
+            #print('j: '+ str(j))
+            #print('cont: '+ str(cont))
             cont = cont + 1
             tempmin = tmin[pos_date, i, j]
             tempmax = tmax[pos_date, i, j]
@@ -114,13 +116,14 @@ def ih_to_csv(ruta_tmin, ruta_tmax, ruta_pr, fecha):
             if month_number == 12:
                 indice_hidrico = ih.diciembre(tprom, prec)    
 
-            df = df.append({'lat': lat[i],  'lon': lon[j], 'tmin': tempmin, 'tmax': tempmax, 'pr': prec, 'tprom': tprom, 'ih': indice_hidrico}, ignore_index=True)
-           
+            #df = df.append({'lat': lat[i],  'lon': lon[j], 'tmin': tempmin, 'tmax': tempmax, 'pr': prec, 'tprom': tprom, 'ih': indice_hidrico}, ignore_index=True)
+            df = df.append({'lat': lat[i],  'lon': lon[j], 'tmin': tempmin, 'tmax': tempmax, 'pr': prec, 'ih': indice_hidrico}, ignore_index=True)
 
     
     #path_netcdf = os.path.basename(ruta)
     #name_netcdf = path_netcdf.split(".nc")
-    path_csv = 'csv/indice_riesgo_hidrico_' + str(fecha) + '.csv'
+    #path_csv = os.path.join('csv', 'indice_riesgo_hidrico_'+ str(fecha) + '.csv')
+    path_csv = './csv/Indice_Riesgo_Hidrico_' + str(fecha) + '.csv'
 
     # export to csv and then import it, and then we clear the data.
     # when we import the csv, we can handle again like a dataframe, so we can clear the data. Before we can not do that

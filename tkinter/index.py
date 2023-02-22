@@ -11,7 +11,7 @@ def main():
     
     root = tk.Tk()
     root.title('Calculo de indice hidrico')
-    #root.iconbitmap('img/logoubb.ico')
+    #root.iconbitmap('/home/debian/tesis/tkinter/img/logoubb.png')
     root.resizable(0,0)
     
     barra_menu(root)

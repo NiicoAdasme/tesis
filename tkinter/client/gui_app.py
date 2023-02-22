@@ -4,9 +4,11 @@ from client.plot_netcdf import plot
 from client.to_csv import export_csv
 from client.generate_timelapse import gen_timelapse
 from client.ih_to_csv import ih_to_csv
+from client.map_ih import map_chile_ih, map_nuble_ih 
 from PIL import Image, ImageTk
 from tkcalendar import DateEntry
 import datetime
+import os
 
 def barra_menu(root):
     barra_menu = tk.Menu(root)
@@ -34,6 +36,11 @@ class Frame(tk.Frame):
         self.campos_netcdf()
 
     def campos_netcdf(self):
+        # Declare list options to handle csv files that contains ih
+        self.options = []
+        # Get filenames of ih csv
+        self.get_csv_files()
+
         # Button open File
         self.button_tmin = tk.Button(self, text= 'Seleccione NetCDF para Temperatura Minima', command= lambda:self.open_file(tipo= 'tmin'))
         self.button_tmin.grid(row= 0, column= 0, padx= 10, pady= 10)
@@ -94,17 +101,34 @@ class Frame(tk.Frame):
         self.lbl_ih = tk.Label(self, text= 'Calcular indice de riesgo hidrico')
         self.lbl_ih.grid(row= 3, column= 0, padx= 10, pady= 10)
 
+        clicked = tk.StringVar()
+        if len(self.options) > 0:
+            clicked.set(self.options[0])
+        else:
+            clicked.set('No hay archivos CSV para el indice de riesgo hidrico')
+
+        # Dropdown menu
+        drop = tk.OptionMenu(self, clicked, '-----',*self.options)
+        drop.grid(row= 3, column= 1, padx= 10, pady= 10)
+
         # Button show Map
-        self.button_show_ih = tk.Button(self, text= 'Ver Mapa', command= lambda:self.show_map(tipo= 'ih'))
-        self.button_show_ih.grid(row= 3, column= 1, padx= 10, pady= 10)
+        #self.button_show_ih = tk.Button(self, text= 'Ver Mapa', command= lambda:self.show_map(tipo= 'ih'))
+        #self.button_show_ih.grid(row= 3, column= 1, padx= 10, pady= 10)
 
         # Button export to CSV
         self.button_export_ih = tk.Button(self, text= 'Exportar a CSV', command= lambda:self.export(tipo= 'ih'))
         self.button_export_ih.grid(row= 3, column= 2, padx= 10, pady= 10)
 
+        self.button_map_chile = tk.Button(self, text= 'Mapa de Chile', command= lambda:self.show_chile(clicked.get()))
+        self.button_map_chile.grid(row= 3, column= 3, padx= 10, pady= 10)
+
+        self.button_map_nuble = tk.Button(self, text= 'Mapa de Ñuble', command= lambda:self.show_nuble(clicked.get()))
+        self.button_map_nuble.grid(row= 3, column= 4, padx= 10, pady= 10)
+
         # Button to generate GIF
-        self.button_gif_ih = tk.Button(self, text= 'Generar GIF', command= lambda: self.generate_gif(tipo= 'ih') )
-        self.button_gif_ih.grid(row= 3, column= 3, padx= 10, pady= 10)
+        #self.button_gif_ih = tk.Button(self, text= 'Generar GIF', command= lambda: self.generate_gif(tipo= 'ih') )
+        #self.button_gif_ih.grid(row= 3, column= 4, padx= 10, pady= 10)
+
 
     # Functions open file
     def open_file(self, tipo= ['tmin', 'tmax', 'pr', 'ih']):
@@ -120,10 +144,6 @@ class Frame(tk.Frame):
             path_netcdf = self.entry_pr
             title = 'Abrir NetCDF para precipitaciones'
         
-        if tipo == 'ih':
-            path_netcdf = self.entry_ih
-            title = 'Abrir NetCDF para indice hidrico'
-
         file = tk.filedialog.askopenfilename(title= title, initialdir= 'C:/', filetypes= (("Archivos NetCDF","*.nc"), ("Cualquier Archivo", "*.*")))
         
         # validate the correct file
@@ -136,7 +156,7 @@ class Frame(tk.Frame):
 
 
     # Functions show map
-    def show_map(self, tipo= ['tmin', 'tmax', 'pr', 'ih']):
+    def show_map(self, tipo= ['tmin', 'tmax', 'pr'], tipo_mapa= ['cl', 'nuble']):
         if tipo == 'tmin':
             path_netcdf = self.entry_tmin.get()
             msg = 'Por favor, ingrese archivo NetCDF para temperatura minima'
@@ -149,23 +169,12 @@ class Frame(tk.Frame):
             path_netcdf = self.entry_pr.get()
             msg = 'Por favor, ingrese archivo NetCDF para precipitaciones'
 
-        if tipo == 'ih':
-            ruta_tmin = self.entry_tmin.get()
-            ruta_tmax = self.entry_tmax.get()
-            ruta_pr = self.entry_pr.get()
-            msg = 'Son necesarios los archivos NetCDF de temperatura minima, maxima y de precipitaciones, para calcular el indice de riesgo hidrico'
-
-            if len(ruta_tmin) > 0 and len(ruta_tmax) > 0 and len(ruta_pr) > 0:            
-                self.modal_calendar(tipo= tipo, action= 'plot')
-            else:
-                tk.messagebox.showerror('Ups! Faltan archivos NetCDF', msg)
-
-        
         if len(path_netcdf) > 0:
             # Create a modal to show the message
             self.modal_calendar(tipo= tipo, action= 'plot')
         else:
             tk.messagebox.showerror('Ups! Se te ha olvidado el archivo', msg)
+
 
     #  Function export to CSV
     def export(self, tipo= ['tmin', 'tmax', 'pr', 'ih']):
@@ -201,9 +210,9 @@ class Frame(tk.Frame):
     def modal_calendar(self, tipo= ['tmin', 'tmax', 'pr', 'ih'], action= ['plot', 'csv']):
         top = tk.Toplevel()
         top.title('Seleccione una fecha')
-        top.geometry("680x80")
+        top.geometry("720x80")
 
-        lbl = tk.Label(top, text= 'Seleccione una fecha entre 1978-12-15 y 2019-01-01 (Formato: YYYY-MM-DD)')
+        lbl = tk.Label(top, text= 'Seleccione una fecha entre 1978-12-15 y 2019-10-30 (Formato: YYYY-MM-DD)')
         lbl.grid(row= 0, column= 0, padx= 10, pady= 10)
         cal = DateEntry(top, selectmode= 'day', date_pattern= 'YYYY-mm-dd')
         cal.grid(row= 0, column= 1, padx= 10, pady= 10)
@@ -232,7 +241,7 @@ class Frame(tk.Frame):
         top.mainloop()
     
     # validate date in a valid range
-    def validate_date(self, fecha, titulo, tipo = ['tmin', 'tmax', 'pr', 'ih'], action= ['plot', 'csv']):
+    def validate_date(self, fecha, titulo, tipo = ['tmin', 'tmax', 'pr'], action= ['plot', 'csv']):
         start_date = datetime.date(1978, 12, 15)
         ending_date = datetime.date(2019, 10, 30)
         if fecha < start_date or fecha > ending_date:
@@ -245,7 +254,7 @@ class Frame(tk.Frame):
                 self.export_to_csv(fecha= fecha, tipo= tipo)
 
     # show image
-    def modal_map(self, titulo, fecha, tipo= ['tmin', 'tmax', 'pr', 'ih']):
+    def modal_map(self, titulo, fecha, tipo= ['tmin', 'tmax', 'pr']):
         if tipo == 'tmin':
             path_netcdf= self.entry_tmin.get()
         
@@ -255,16 +264,11 @@ class Frame(tk.Frame):
         if tipo == 'pr':
             path_netcdf= self.entry_pr.get()
 
-        if tipo == 'ih':
-            ruta_tmin = self.entry_tmin.get()
-            ruta_tmax = self.entry_tmax.get()
-            ruta_pr = self.entry_pr.get()
-
-            # plot map ih
-
         res = plot(ruta= path_netcdf, fecha= fecha, tipo= tipo)
         image = ImageTk.PhotoImage(Image.open(res))
         top = tk.Toplevel()
+        #scrollbar = tk.Scrollbar(top)
+        #scrollbar.pack( side = tk.RIGHT, fill= tk.Y )
         top.title(titulo + str(fecha))
         top.geometry("800x750")
         lbl = tk.Label(top, image= image)
@@ -273,24 +277,47 @@ class Frame(tk.Frame):
         top.mainloop()
 
     # geenerate gif
-    def generate_gif(self, tipo= ['tmin', 'tmax', 'pr']):
+    def generate_gif(self, tipo= ['tmin', 'tmax', 'pr', 'ih']):
         if tipo == 'tmin':
             path_netcdf= self.entry_tmin.get()
+            msg = 'Por favor, ingrese archivo NetCDF para temperatura minima'
         
         if tipo == 'tmax':
             path_netcdf= self.entry_tmax.get()
+            msg = 'Por favor, ingrese archivo NetCDF para temperatura maxima'
 
         if tipo == 'pr':
             path_netcdf= self.entry_pr.get()
-        
-        res = gen_timelapse(ruta= path_netcdf, tipo= tipo)
-        
-        print('respuesta del timelapse: '+ res)
+            msg = 'Por favor, ingrese archivo NetCDF para precipitaciones'
 
-        if len(res) > 0:
-            tk.messagebox.showinfo('GIF Guardado', 'El GIF se guardó correctamente en '+ res)
+        if tipo == 'ih':
+            ruta_tmin = self.entry_tmin.get()
+            ruta_tmax = self.entry_tmax.get()
+            ruta_pr = self.entry_pr.get()
+            msg = 'Son necesarios los archivos NetCDF de temperatura minima, maxima y de precipitaciones, para calcular el indice de riesgo hidrico'
+
+            if len(ruta_tmin) > 0 and len(ruta_tmax) > 0 and len(ruta_pr) > 0:            
+                res = gen_timelapse(ruta= path_netcdf, tipo= tipo)
+        
+                if len(res) > 0:
+                    tk.messagebox.showinfo('GIF Guardado', 'El GIF se guardó correctamente en '+ res)
+                else:
+                    tk.messagebox.showerror('Ups! Error al generar GIF', 'Lo sentimos. Hubo un error al generar el GIF')
+
+            else:
+                tk.messagebox.showerror('Ups! Faltan archivos NetCDF', msg) 
         else:
-            tk.messagebox.showerror('Ups! Error al generar GIF', 'Lo sentimos. Hubo un error al generar el GIF')
+            if len(path_netcdf) > 0:
+                res = gen_timelapse(ruta= path_netcdf, tipo= tipo)
+            
+                if len(res) > 0:
+                    tk.messagebox.showinfo('GIF Guardado', 'El GIF se guardó correctamente en '+ res)
+                else:
+                    tk.messagebox.showerror('Ups! Error al generar GIF', 'Lo sentimos. Hubo un error al generar el GIF')
+            else:
+                tk.messagebox.showerror('Ups! Se te ha olvidad el archivo', msg)
+
+
 
 
     # export to csv
@@ -314,6 +341,73 @@ class Frame(tk.Frame):
 
         if res == None:
             tk.messagebox.showinfo('Exportado a CSV', 'Archivo CSV guardado correctamente en la carpera CSV')
+            self.get_csv_files()
         else:
             tk.messagebox.showerror('Ups! Error al exportar', 'Lo sentimos. No se pudo exportar a CSV')
 
+
+    def get_csv_files(self):
+        self.options = []
+        with os.scandir('csv/') as entries:
+            for entry in entries:
+                name, ext = os.path.splitext(entry.name)
+                filename = os.path.basename(name) 
+                if 'Indice_Riesgo_Hidrico_' in filename:
+                    self.options.append(entry.name)
+                
+                #if len(self.options) == 0:
+
+
+    def show_nuble(self, ruta):
+        if len(self.options) > 0:
+            fecha = ruta.split('_')
+            fecha = fecha[3].split('.csv')
+            curr_dir = os.getcwd()
+            ruta = os.path.join(curr_dir, 'csv', ruta)
+            #ruta = '/home/debian/tesis/tkinter/csv/'+ruta
+            res = map_nuble_ih(ruta, fecha[0]) 
+        
+            if len(res) > 0:
+                #image = ImageTk.PhotoImage(Image.open(res))
+                #top = tk.Toplevel()
+                #scrollbar = tk.Scrollbar(top)
+                #scrollbar.pack( side = tk.RIGHT, fill= tk.Y )
+                #top.title('Mapa indice de riesgo hidrico para Ñuble de ' + str(fecha[0]))
+                #top.geometry("700x850")
+                #lbl = tk.Label(top, image= image)
+                #lbl.grid(row= 0, column= 0)
+                tk.messagebox.showinfo('Imagen Guardada', 'La imagen se guardó correctamente en '+ str(res))
+                #top.mainloop()
+            else:
+                tk.messagebox.showerror('Ups! Error al generar el mapa', 'Lo sentimos. No se pudo generar el mapa')
+        else:
+            tk.messagebox.showerror('Ups! Seleccione un CSV', 'Lo sentimos. Seleccione un CSV para generar el mapa')
+            
+        
+        
+        
+    def show_chile(self, ruta):
+        if len(self.options) > 0:
+            fecha = ruta.split('_')
+            fecha = fecha[3].split('.csv')
+            curr_dir = os.getcwd()
+            ruta = os.path.join(curr_dir, 'csv', ruta)
+            #ruta = '/home/debian/tesis/tkinter/csv/'+ruta
+            res = map_chile_ih(ruta, fecha[0])
+
+            if len(res) > 0:
+                #image = ImageTk.PhotoImage(Image.open(res))
+                #top = tk.Toplevel()
+                #scrollbar = tk.Scrollbar(top)
+                #scrollbar.pack( side = tk.RIGHT, fill= tk.Y )
+                #top.title('Mapa indice de riesgo hidrico para Chile de ' + str(fecha[0]))
+                #top.geometry("700x850")
+                #lbl = tk.Label(top, image= image)
+                #lbl.grid(row= 0, column= 0)
+                #top.mainloop()
+                tk.messagebox.showinfo('Imagen Guardada', 'La imagen se guardó correctamente en '+ str(res))
+            else:
+                tk.messagebox.showerror('Ups! Error al generar el mapa', 'Lo sentimos. No se pudo generar el mapa')
+
+        else:
+            tk.messagebox.showerror('Ups! Seleccione un CSV', 'Lo sentimos. Seleccione un CSV para generar el mapa')

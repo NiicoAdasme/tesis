@@ -80,7 +80,7 @@ def plot(ruta, fecha, tipo= ['tmin', 'tmax', 'pr']):
 
     path_img = os.path.basename(ruta)
     name_img = path_img.split(".nc")
-    path_img = 'img/' + name_img[0] + '-' + str(fecha) + '.jpg'
+    path_img = './img/' + name_img[0] + '-' + str(fecha) + '.jpg'
     plt.savefig(path_img)
 
     return path_img

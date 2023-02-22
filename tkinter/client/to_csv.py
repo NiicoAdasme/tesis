@@ -9,8 +9,10 @@ from netCDF4 import Dataset
 import numpy as np
 import pandas as pd
 import os
+import warnings
 
 def export_csv(ruta, fecha, tipo= ['tmin', 'tmax', 'pr']):
+    warnings.filterwarnings("ignore")
 
     data = Dataset(ruta)
 
@@ -71,9 +73,9 @@ def export_csv(ruta, fecha, tipo= ['tmin', 'tmax', 'pr']):
         #    if j == min_index_lon:
         #        break
         #    else:
-            print('i: '+ str(i))
-            print('j: '+ str(j))
-            print('cont: '+ str(cont))
+            #print('i: '+ str(i))
+            #print('j: '+ str(j))
+            #print('cont: '+ str(cont))
             varr = var[pos_date, i, j]
             cont = cont + 1
             df = df.append({'lat': lat[i],  'lon': lon[j], tipo: varr}, ignore_index=True)
@@ -81,7 +83,7 @@ def export_csv(ruta, fecha, tipo= ['tmin', 'tmax', 'pr']):
     
     path_netcdf = os.path.basename(ruta)
     name_netcdf = path_netcdf.split(".nc")
-    path_csv = 'csv/' + name_netcdf[0] + '-' + str(fecha) + '.csv'
+    path_csv = './csv/' + name_netcdf[0] + '-' + str(fecha) + '.csv'
 
     # export to csv and then import it, and then we clear the data.
     # when we import the csv, we can handle again like a dataframe, so we can clear the data. Before we can not do that
