@@ -2,7 +2,6 @@
 /images_gif
 /img
 /csv
-/Jupyter Notebook
 /tkinter/client/__pycache__
 /tkinter/img
 /tkinter/csv
@@ -16,3 +15,5 @@ datetime.txt
 Tesis compañeros anteriores - Shortcut.lnk
 Videos para defensa - Shortcut.lnk
 Codgio fuente escasez_hidrica - Shortcut.lnk
+archivo_combinado.nc
+indice_hidrico.nc
